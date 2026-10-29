@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Animated Gradient Background</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; min-height: 100%; margin: 0; overflow: hidden; }
+    body { background: #101015; }
+    .background {
+      position: fixed;
+      isolation: isolate;
+      inset: 0;
+      overflow: hidden;
+      background: linear-gradient(180deg, #d6cfeb 0%, #8c719e 45%, #402943 72%, #261b24 100%);
+    }
+    .patch {
+      position: absolute;
+      z-index: 1;
+      width: min(92vmax, 1100px);
+      aspect-ratio: 1;
+      transform: translate(var(--tx, 0), var(--ty, 0));
+      transition: transform 900ms cubic-bezier(.2,.8,.2,1);
+      pointer-events: none;
+    }
+    .blob {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      filter: blur(clamp(28px, 5vw, 76px));
+      background: radial-gradient(circle, var(--color) 0 14%, color-mix(in srgb, var(--color) 72%, transparent) 38%, transparent 70%);
+      animation: drift var(--duration) ease-in-out infinite alternate;
+      transform-origin: var(--origin);
+    }
+    /* Replace these four adjacent-hue colors from the user's description. */
+    .p1 { left:-25vmax; top:-35vmax; --color:#8b65c7; --duration:23s; --origin:62% 68%; --pull:.16; }
+    .p2 { right:-28vmax; top:-22vmax; --color:#d36eae; --duration:27s; --origin:32% 72%; --pull:.12; }
+    .p3 { left:-22vmax; bottom:-42vmax; --color:#ed805f; --duration:20s; --origin:70% 30%; --pull:.18; }
+    .p4 { right:-26vmax; bottom:-38vmax; --color:#e5aa64; --duration:25s; --origin:28% 28%; --pull:.14; }
+    .p2 .blob, .p4 .blob { animation-direction: alternate-reverse; }
+    @keyframes drift {
+      0% { transform: translate3d(-3%,-2%,0) scale(.96) rotate(-2deg); }
+      48% { transform: translate3d(5%,-4%,0) scale(1.07) rotate(3deg); }
+      100% { transform: translate3d(-2%,6%,0) scale(1.02) rotate(-1deg); }
+    }
+    .pattern {
+      position: absolute;
+      z-index: 3;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: white;
+      stroke-width: .8;
+      vector-effect: non-scaling-stroke;
+      opacity: .3;
+      pointer-events: none;
+      -webkit-mask-image: radial-gradient(circle at center, transparent 0 22%, rgba(0,0,0,.2) 38%, #000 66%);
+      mask-image: radial-gradient(circle at center, transparent 0 22%, rgba(0,0,0,.2) 38%, #000 66%);
+    }
+    .noise {
+      position: absolute;
+      z-index: 4;
+      inset: 0;
+      background-repeat: repeat;
+      background-size: 128px 128px;
+      mix-blend-mode: overlay;
+      opacity: .4;
+      pointer-events: none;
+    }
+    @media (prefers-reduced-motion: reduce) { .blob { animation: none; } .patch { transition: none; } }
+  </style>
+</head>
+<body>
+  <main class="background" aria-label="Animated abstract gradient background">
+    <div class="patch p1"><div class="blob"></div></div>
+    <div class="patch p2"><div class="blob"></div></div>
+    <div class="patch p3"><div class="blob"></div></div>
+    <div class="patch p4"><div class="blob"></div></div>
+    <svg class="pattern" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <path d="M-100 160C180 25 430 280 720 120S1270 0 1700 170M-100 230C180 95 430 350 720 190S1270 70 1700 240M-100 300C180 165 430 420 720 260S1270 140 1700 310M-100 700C180 835 430 580 720 740S1270 860 1700 690M-100 770C180 905 430 650 720 810S1270 930 1700 760M-100 840C180 975 430 720 720 880S1270 1000 1700 830"/>
+    </svg>
+    <div class="noise"></div>
+  </main>
+  <script>
+    (() => {
+      const tileCssSize = 128;
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const physicalSize = Math.round(tileCssSize * dpr);
+      const canvas = document.createElement('canvas');
+      canvas.width = physicalSize;
+      canvas.height = physicalSize;
+      const ctx = canvas.getContext('2d', { alpha: false });
+      const image = ctx.createImageData(physicalSize, physicalSize);
+      for (let i = 0; i < image.data.length; i += 4) {
+        const value = Math.floor(Math.random() * 256);
+        image.data[i] = image.data[i + 1] = image.data[i + 2] = value;
+        image.data[i + 3] = 255;
+      }
+      ctx.putImageData(image, 0, 0);
+      document.querySelector('.noise').style.backgroundImage = `url(${canvas.toDataURL('image/png')})`;
+
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const surface = document.querySelector('.background');
+        const patches = [...surface.querySelectorAll('.patch')];
+        surface.addEventListener('pointermove', event => {
+          const dx = event.clientX - innerWidth / 2;
+          const dy = event.clientY - innerHeight / 2;
+          patches.forEach(patch => {
+            const pull = Number.parseFloat(getComputedStyle(patch).getPropertyValue('--pull')) || .15;
+            patch.style.setProperty('--tx', `${dx * pull}px`);
+            patch.style.setProperty('--ty', `${dy * pull}px`);
+          });
+        });
+        surface.addEventListener('pointerleave', () => patches.forEach(patch => {
+          patch.style.setProperty('--tx', '0px');
+          patch.style.setProperty('--ty', '0px');
+        }));
+      }
+    })();
+  </script>
+</body>
+</html>

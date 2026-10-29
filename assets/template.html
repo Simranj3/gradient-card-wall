@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gradient Card Wall</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body { margin: 0; display: grid; place-items: center; background: #0d0d0f; }
+    .wall { width: min(94vw, 1500px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(10px, 1.2vw, 20px); padding: clamp(14px, 2vw, 32px); }
+    .card {
+      position: relative; isolation: isolate; container-type: inline-size; aspect-ratio: 1; overflow: hidden;
+      border-radius: 20px;
+      background: linear-gradient(180deg, var(--top) 0%, var(--mid) 46%, var(--bottom) 100%);
+      box-shadow: inset 0 0 0 .5px rgba(0, 0, 0, .42);
+    }
+    .card::after { content: ""; position: absolute; z-index: 10; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.42); }
+    /* 1: purple-pink to orange-gold */
+    .card:nth-child(1) { --top:#d7c2ee; --mid:#bd6ba5; --bottom:#5b261c; --c1:#8654cb; --c2:#ee68ae; --c3:#f58a54; --c4:#ffc65b; }
+    /* 2: gray-blue to dark brown */
+    .card:nth-child(2) { --top:#b7c5cf; --mid:#71808d; --bottom:#30201c; --c1:#9db5c5; --c2:#6f8495; --c3:#6b5145; --c4:#39241f; }
+    /* 3: misty blue to deep sea blue */
+    .card:nth-child(3) { --top:#c5dce6; --mid:#5f99b2; --bottom:#082f4e; --c1:#b6d4df; --c2:#72b4cd; --c3:#176b98; --c4:#07365e; }
+    /* 4: misty blue to dark green */
+    .card:nth-child(4) { --top:#c1d9db; --mid:#5e9c91; --bottom:#123d32; --c1:#b9d8dc; --c2:#75b6ad; --c3:#297961; --c4:#143f32; }
+    /* 5: lavender to midnight purple */
+    .card:nth-child(5) { --top:#d4c6ed; --mid:#765b9e; --bottom:#24183d; --c1:#c5afe9; --c2:#9979c7; --c3:#5d3b86; --c4:#211536; }
+    /* 6: sky gray to rust red */
+    .card:nth-child(6) { --top:#c7d0d6; --mid:#947277; --bottom:#692d25; --c1:#b8c8d1; --c2:#a98f97; --c3:#b85b4d; --c4:#702c24; }
+    .patch { position: absolute; z-index: 1; width: 95%; aspect-ratio: 1; transform: translate(var(--tx, 0), var(--ty, 0)); transition: transform 900ms cubic-bezier(.2,.8,.2,1); pointer-events: none; }
+    .blob { width: 100%; height: 100%; border-radius: 50%; filter: blur(22px); background: radial-gradient(circle, var(--color) 0 16%, color-mix(in srgb, var(--color) 74%, transparent) 38%, transparent 70%); animation: drift var(--duration) ease-in-out infinite alternate; transform-origin: var(--origin); }
+    .p1 { left:-28%; top:-25%; --color:var(--c1); --duration:23s; --origin:60% 60%; --pull:.22; }
+    .p2 { right:-30%; top:-12%; --color:var(--c2); --duration:27s; --origin:35% 70%; --pull:.16; }
+    .p3 { left:-25%; bottom:-35%; --color:var(--c3); --duration:20s; --origin:70% 35%; --pull:.25; }
+    .p4 { right:-32%; bottom:-30%; --color:var(--c4); --duration:25s; --origin:30% 30%; --pull:.19; }
+    .p2 .blob, .p4 .blob { animation-direction: alternate-reverse; }
+    @keyframes drift { 0% { transform: translate3d(-3%,-2%,0) scale(.96) rotate(-2deg); } 48% { transform: translate3d(5%,-4%,0) scale(1.07) rotate(3deg); } 100% { transform: translate3d(-2%,6%,0) scale(1.02) rotate(-1deg); } }
+    .pattern { position: absolute; z-index: 3; inset: 0; width: 100%; height: 100%; fill: none; stroke: white; stroke-width: .8; vector-effect: non-scaling-stroke; opacity: .3; pointer-events: none; -webkit-mask-image: radial-gradient(circle at center, transparent 0 25%, rgba(0,0,0,.15) 37%, #000 62%); mask-image: radial-gradient(circle at center, transparent 0 25%, rgba(0,0,0,.15) 37%, #000 62%); }
+    .noise { position: absolute; z-index: 4; inset: 0; background-repeat: repeat; background-size: 128px 128px; mix-blend-mode: overlay; opacity: .4; pointer-events: none; }
+    @media (max-width: 760px) { .wall { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 460px) { .wall { grid-template-columns: 1fr; } }
+    @media (prefers-reduced-motion: reduce) { .blob { animation: none; } .patch { transition: none; } }
+  </style>
+</head>
+<body>
+  <main class="wall" aria-label="Six animated gradient cards">
+    <article class="card"><div class="patch p1"><div class="blob"></div></div><div class="patch p2"><div class="blob"></div></div><div class="patch p3"><div class="blob"></div></div><div class="patch p4"><div class="blob"></div></div>
+      <svg class="pattern" viewBox="0 0 500 500" aria-hidden="true"><path d="M250 250L-30 58M250 250L55-30M250 250L185-35M250 250L315-35M250 250L445-30M250 250L530 58M250 250L535 185M250 250L535 315M250 250L530 442M250 250L445 530M250 250L315 535M250 250L185 535M250 250L55 530M250 250L-30 442M250 250L-35 315M250 250L-35 185"/></svg>
+      <div class="noise"></div></article>
+    <article class="card"><div class="patch p1"><div class="blob"></div></div><div class="patch p2"><div class="blob"></div></div><div class="patch p3"><div class="blob"></div></div><div class="patch p4"><div class="blob"></div></div>
+      <svg class="pattern" viewBox="0 0 500 500" aria-hidden="true"><path d="M-20 70C90 25 190 105 290 58S470 13 530 68M-20 105C80 58 175 140 285 94S465 49 530 104M-20 140C75 95 168 175 280 132S460 86 530 140M-20 175C68 132 160 210 275 169S455 123 530 176M-20 325C68 368 160 290 275 331S455 377 530 324M-20 360C75 405 168 325 280 368S460 414 530 360M-20 395C80 442 175 360 285 406S465 451 530 396M-20 430C90 475 190 395 290 442S470 487 530 432"/></svg>
+      <div class="noise"></div></article>
+    <article class="card"><div class="patch p1"><div class="blob"></div></div><div class="patch p2"><div class="blob"></div></div><div class="patch p3"><div class="blob"></div></div><div class="patch p4"><div class="blob"></div></div>
+      <svg class="pattern" viewBox="0 0 500 500" aria-hidden="true"><path d="M-10 70Q60 38 125 76T255 72T385 70T520 74M-10 105Q60 73 125 111T255 107T385 105T520 109M-10 140Q60 108 125 146T255 142T385 140T520 144M-10 175Q60 143 125 181T255 177T385 175T520 179M-10 325Q60 357 125 319T255 323T385 325T520 321M-10 360Q60 392 125 354T255 358T385 360T520 356M-10 395Q60 427 125 389T255 393T385 395T520 391M-10 430Q60 462 125 424T255 428T385 430T520 426"/></svg>
+      <div class="noise"></div></article>
+    <article class="card"><div class="patch p1"><div class="blob"></div></div><div class="patch p2"><div class="blob"></div></div><div class="patch p3"><div class="blob"></div></div><div class="patch p4"><div class="blob"></div></div>
+      <svg class="pattern" viewBox="0 0 500 500" aria-hidden="true"><defs><pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.4" fill="white" stroke="none"/></pattern></defs><rect width="500" height="500" fill="url(#dots)" stroke="none"/></svg>
+      <div class="noise"></div></article>
+    <article class="card"><div class="patch p1"><div class="blob"></div></div><div class="patch p2"><div class="blob"></div></div><div class="patch p3"><div class="blob"></div></div><div class="patch p4"><div class="blob"></div></div>
+      <svg class="pattern" viewBox="0 0 500 500" aria-hidden="true"><ellipse cx="250" cy="250" rx="235" ry="92"/><ellipse cx="250" cy="250" rx="205" ry="125"/><ellipse cx="250" cy="250" rx="170" ry="160"/><ellipse cx="250" cy="250" rx="125" ry="205"/><ellipse cx="250" cy="250" rx="92" ry="235"/><circle cx="250" cy="250" r="220"/></svg>
+      <div class="noise"></div></article>
+    <article class="card"><div class="patch p1"><div class="blob"></div></div><div class="patch p2"><div class="blob"></div></div><div class="patch p3"><div class="blob"></div></div><div class="patch p4"><div class="blob"></div></div>
+      <div class="noise"></div></article>
+  </main>
+  <script>
+    (() => {
+      const tileCssSize = 128;
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const physicalSize = Math.round(tileCssSize * dpr);
+      const canvas = document.createElement('canvas');
+      canvas.width = physicalSize; canvas.height = physicalSize;
+      const ctx = canvas.getContext('2d', { alpha: false });
+      const image = ctx.createImageData(physicalSize, physicalSize);
+      for (let i = 0; i < image.data.length; i += 4) {
+        const value = Math.floor(Math.random() * 256);
+        image.data[i] = image.data[i + 1] = image.data[i + 2] = value; image.data[i + 3] = 255;
+      }
+      ctx.putImageData(image, 0, 0);
+      const noiseUrl = `url(${canvas.toDataURL('image/png')})`;
+      document.querySelectorAll('.noise').forEach(layer => { layer.style.backgroundImage = noiseUrl; });
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.querySelectorAll('.card').forEach(card => {
+          const patches = [...card.querySelectorAll('.patch')];
+          card.addEventListener('pointermove', event => {
+            const rect = card.getBoundingClientRect();
+            const dx = event.clientX - rect.left - rect.width / 2;
+            const dy = event.clientY - rect.top - rect.height / 2;
+            patches.forEach(patch => {
+              const pull = Number.parseFloat(getComputedStyle(patch).getPropertyValue('--pull')) || .2;
+              patch.style.setProperty('--tx', `${dx * pull}px`);
+              patch.style.setProperty('--ty', `${dy * pull}px`);
+            });
+          });
+          card.addEventListener('pointerleave', () => patches.forEach(patch => {
+            patch.style.setProperty('--tx', '0px');
+            patch.style.setProperty('--ty', '0px');
+          }));
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
